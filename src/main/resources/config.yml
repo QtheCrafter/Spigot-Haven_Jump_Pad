@@ -1,0 +1,6 @@
+settings:
+  allow-non-ops: true  # If true, non-ops with 'jumppad.use' can use jump pads.
+  max-distance: 5  # Maximum distance a player can look to select a jump pad.
+  language: "en_us"  # Change this to load different language files (e.g., es_es, fr_fr)
+
+jumpPads: {}  # Stored jump pad locations

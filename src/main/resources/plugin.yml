@@ -1,0 +1,24 @@
+name: HavenJumpPad
+version: ${version}
+main: net.cathienova.havenjumppad.HavenJumpPad
+api-version: 1.13
+authors: [CathieNova]
+description: "A customizable Jump Pad plugin with multi-version support."
+website: "https://cathiehaven.net/"
+
+load: STARTUP
+
+commands:
+  jumppad:
+    description: "Manage jump pads."
+    usage: "/jumppad add <velocityX> <velocityY> | /jumppad remove | /jumppad info | /jumppad enable | /jumppad disable"
+    aliases: []
+    permission: jumppad.admin
+
+permissions:
+  jumppad.use:
+    description: "Allows players to use jump pads."
+    default: true
+  jumppad.admin:
+    description: "Allows admins to add/remove/modify jump pads."
+    default: op
