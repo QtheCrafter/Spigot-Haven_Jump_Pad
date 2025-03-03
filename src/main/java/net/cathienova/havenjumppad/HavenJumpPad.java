@@ -9,6 +9,7 @@ import net.cathienova.havenjumppad.managers.JumpPadManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.File;
 import java.util.logging.Logger;
 
 public final class HavenJumpPad extends JavaPlugin {
@@ -18,7 +19,10 @@ public final class HavenJumpPad extends JavaPlugin {
     @Override
     public void onEnable() {
         this.logger = getLogger();
-        saveDefaultConfig();
+
+        if (!new File(getDataFolder(), "config.yml").exists()) {
+            saveDefaultConfig();
+        }
 
         jumpPadManager = new JumpPadManager(this);
 

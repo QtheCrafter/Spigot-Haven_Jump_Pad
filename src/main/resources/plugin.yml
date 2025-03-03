@@ -10,8 +10,8 @@ load: STARTUP
 
 commands:
   jumppad:
-    description: "Manage jump pads."
-    usage: "/jumppad add <velocityX> <velocityY> | /jumppad remove | /jumppad info | /jumppad enable | /jumppad disable"
+    description: "Main command for jump pads."
+    usage: "/jumppad <subcommand>"
     aliases: []
     permission: jumppad.admin
 
@@ -19,6 +19,7 @@ permissions:
   jumppad.use:
     description: "Allows players to use jump pads."
     default: true
+
   jumppad.admin:
     description: "Allows admins to add/remove/modify jump pads."
     default: op
