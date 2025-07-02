@@ -56,11 +56,12 @@ public class JumpPadCommand implements CommandExecutor, TabCompleter {
                     return true;
 
                 case "info":
-                    Vector storedVelocity = jumpPadManager.getStoredJumpPadVelocity(targetLocation);
-                    if (storedVelocity != null) {
+                    var data = jumpPadManager.getStoredJumpPadData(targetLocation);
+                    if (data != null) {
                         player.sendMessage(jumpPadManager.getLangMessage("jumppad_info")
-                                                   .replace("{x}", String.format("%.1f", storedVelocity.getX()))
-                                                   .replace("{y}", String.format("%.1f", storedVelocity.getY())));
+                                .replace("{direction}", data.direction)
+                                .replace("{velocity}", String.format("%.1f", data.velocity))
+                                .replace("{y}", String.format("%.1f", data.yVelocity)));
                     } else {
                         player.sendMessage(jumpPadManager.getLangMessage("not_a_jumppad"));
                     }
@@ -90,12 +91,21 @@ public class JumpPadCommand implements CommandExecutor, TabCompleter {
 
         if (args.length == 3 && args[0].equalsIgnoreCase("add")) {
             try {
-                double velocityX = Double.parseDouble(args[1]);
-                double velocityY = Double.parseDouble(args[2]);
-                jumpPadManager.addJumpPad(targetLocation, new Vector(velocityX, velocityY, 0));
+                String direction = args[1].toLowerCase();
+                if (!direction.equals("+x") && !direction.equals("-x") && !direction.equals("+z") && !direction.equals("-z")) {
+                    player.sendMessage("§cInvalid direction! Use +x, -x, +z, or -z.");
+                    return true;
+                }
+                double velocity = Double.parseDouble(args[2]);
+                double yVelocity = 1.0; // Default Y velocity
+                if (args.length == 4) {
+                    yVelocity = Double.parseDouble(args[3]);
+                }
+                jumpPadManager.addJumpPad(targetLocation, direction, velocity, yVelocity);
                 player.sendMessage(jumpPadManager.getLangMessage("jumppad_added")
-                                           .replace("{x}", String.valueOf(velocityX))
-                                           .replace("{y}", String.valueOf(velocityY)));
+                                           .replace("{direction}", direction)
+                                           .replace("{velocity}", String.valueOf(velocity))
+                                           .replace("{y}", String.valueOf(yVelocity)));
             } catch (NumberFormatException e) {
                 player.sendMessage(jumpPadManager.getLangMessage("invalid_number"));
             }

@@ -17,11 +17,23 @@ import java.util.Set;
 
 public class JumpPadManager {
     private final HavenJumpPad plugin;
-    private final Map<Location, Vector> jumpPads = new HashMap<>();
+    private final Map<Location, JumpPadData> jumpPads = new HashMap<>();
     private final Set<Location> disabledJumpPads = new HashSet<>();
     private File jumpPadFile;
     private FileConfiguration jumpPadConfig;
     private FileConfiguration langConfig;
+
+    // New class to store direction and velocities
+    public static class JumpPadData {
+        public final String direction; // +x, -x, +z, -z
+        public final double velocity;
+        public final double yVelocity;
+        public JumpPadData(String direction, double velocity, double yVelocity) {
+            this.direction = direction;
+            this.velocity = velocity;
+            this.yVelocity = yVelocity;
+        }
+    }
 
     public JumpPadManager(HavenJumpPad plugin) {
         this.plugin = plugin;
@@ -63,11 +75,12 @@ public class JumpPadManager {
                         Double.parseDouble(parts[3])
                 );
 
-                double velocityX = jumpPadConfig.getDouble("jumpPads." + key + ".velocityX");
-                double velocityY = jumpPadConfig.getDouble("jumpPads." + key + ".velocityY");
+                String direction = jumpPadConfig.getString("jumpPads." + key + ".direction", "+x");
+                double velocity = jumpPadConfig.getDouble("jumpPads." + key + ".velocity", 1.0);
+                double yVelocity = jumpPadConfig.getDouble("jumpPads." + key + ".yVelocity", 1.0);
                 boolean isDisabled = jumpPadConfig.getBoolean("jumpPads." + key + ".disabled", false);
 
-                jumpPads.put(loc, new Vector(velocityX, velocityY, 0));
+                jumpPads.put(loc, new JumpPadData(direction, velocity, yVelocity));
                 if (isDisabled) {
                     disabledJumpPads.add(loc);
                 }
@@ -78,15 +91,14 @@ public class JumpPadManager {
     public void saveJumpPads() {
         jumpPadConfig.set("jumpPads", null);
 
-        for (Map.Entry<Location, Vector> entry : jumpPads.entrySet()) {
+        for (Map.Entry<Location, JumpPadData> entry : jumpPads.entrySet()) {
             Location loc = entry.getKey();
             if (loc.getWorld() == null) continue;
-
-            Vector velocity = entry.getValue();
+            JumpPadData data = entry.getValue();
             String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
-
-            jumpPadConfig.set("jumpPads." + key + ".velocityX", velocity.getX());
-            jumpPadConfig.set("jumpPads." + key + ".velocityY", velocity.getY());
+            jumpPadConfig.set("jumpPads." + key + ".direction", data.direction);
+            jumpPadConfig.set("jumpPads." + key + ".velocity", data.velocity);
+            jumpPadConfig.set("jumpPads." + key + ".yVelocity", data.yVelocity);
             jumpPadConfig.set("jumpPads." + key + ".disabled", disabledJumpPads.contains(loc));
         }
 
@@ -98,13 +110,12 @@ public class JumpPadManager {
         }
     }
 
-    public void addJumpPad(Location loc, Vector velocity) {
+    public void addJumpPad(Location loc, String direction, double velocity, double yVelocity) {
         if (loc.getWorld() == null) {
             plugin.getLogger().warning("Tried to add a Jump Pad in a null world!");
             return;
         }
-
-        jumpPads.put(loc, velocity);
+        jumpPads.put(loc, new JumpPadData(direction, velocity, yVelocity));
         disabledJumpPads.remove(loc);
         saveJumpPads();
     }
@@ -136,20 +147,23 @@ public class JumpPadManager {
         return false;
     }
 
-    public Vector getJumpPadVelocity(Location loc, Player player) {
+    public Vector getJumpPadVelocity(Location loc) {
         if (disabledJumpPads.contains(loc)) return null;
-
-        Vector storedVelocity = jumpPads.get(loc);
-        if (storedVelocity == null) return null;
-
-        // Get the player's current facing direction (horizontal)
-        Vector direction = player.getLocation().getDirection().setY(0).normalize();
-
-        // Scale the direction vector using the stored velocity magnitude
-        return direction.multiply(storedVelocity.getX()).setY(storedVelocity.getY());
+        JumpPadData data = jumpPads.get(loc);
+        if (data == null) return null;
+        Vector velocity = new Vector(0, 0, 0);
+        switch (data.direction.toLowerCase()) {
+            case "+x": velocity.setX(data.velocity); break;
+            case "-x": velocity.setX(-data.velocity); break;
+            case "+z": velocity.setZ(data.velocity); break;
+            case "-z": velocity.setZ(-data.velocity); break;
+            default: velocity.setX(data.velocity); break;
+        }
+        velocity.setY(data.yVelocity);
+        return velocity;
     }
 
-    public Vector getStoredJumpPadVelocity(Location loc) {
+    public JumpPadData getStoredJumpPadData(Location loc) {
         return jumpPads.get(loc);
     }
 
