@@ -1,7 +1,7 @@
 prefix: "§l§x§c§5§8§a§e§dHaven JumpPad §r» "
 
 messages:
-  usage: "§eUsage: /jumppad add <velocityX> <velocityY>"
+  usage: "§eUsage: /jumppad add <direction> <velocity> <velocityY>"
   jumppad_added: "§aJump pad added with velocity: X={x}, Y={y}"
   jumppad_removed: "§aJump pad removed."
   not_a_jumppad: "§cThis is not a registered jump pad."

@@ -89,7 +89,7 @@ public class JumpPadCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        if (args.length == 3 && args[0].equalsIgnoreCase("add")) {
+        if (args.length >= 3 && args[0].equalsIgnoreCase("add")) {
             try {
                 String direction = args[1].toLowerCase();
                 if (!direction.equals("+x") && !direction.equals("-x") && !direction.equals("+z") && !direction.equals("-z")) {
