@@ -59,7 +59,7 @@ public class JumpPadCommand implements CommandExecutor, TabCompleter {
                     var data = jumpPadManager.getStoredJumpPadData(targetLocation);
                     if (data != null) {
                         player.sendMessage(jumpPadManager.getLangMessage("jumppad_info")
-                                .replace("{direction}", data.direction)
+                                .replace("{direction}", data.axis)
                                 .replace("{velocity}", String.format("%.1f", data.velocity))
                                 .replace("{y}", String.format("%.1f", data.yVelocity)));
                     } else {
