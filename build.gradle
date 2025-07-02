@@ -23,7 +23,7 @@ dependencies {
 
     if (isModernVersion) {
         // Use Paper API for modern versions (1.13+)
-        compileOnly("io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT")
+        compileOnly("io.papermc.paper:paper-api:1.21.6-R0.1-SNAPSHOT")
     } else {
         // Use Spigot API for legacy 1.8 support
         compileOnly("org.spigotmc:spigot-api:1.8.8-R0.1-SNAPSHOT")
