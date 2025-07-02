@@ -25,11 +25,11 @@ public class JumpPadManager {
 
     // New class to store direction and velocities
     public static class JumpPadData {
-        public final String direction; // +x, -x, +z, -z
+        public final String axis; // 'x' or 'z'
         public final double velocity;
         public final double yVelocity;
-        public JumpPadData(String direction, double velocity, double yVelocity) {
-            this.direction = direction;
+        public JumpPadData(String axis, double velocity, double yVelocity) {
+            this.axis = axis;
             this.velocity = velocity;
             this.yVelocity = yVelocity;
         }
@@ -75,12 +75,12 @@ public class JumpPadManager {
                         Double.parseDouble(parts[3])
                 );
 
-                String direction = jumpPadConfig.getString("jumpPads." + key + ".direction", "+x");
+                String axis = jumpPadConfig.getString("jumpPads." + key + ".axis", "x");
                 double velocity = jumpPadConfig.getDouble("jumpPads." + key + ".velocity", 1.0);
                 double yVelocity = jumpPadConfig.getDouble("jumpPads." + key + ".yVelocity", 1.0);
                 boolean isDisabled = jumpPadConfig.getBoolean("jumpPads." + key + ".disabled", false);
 
-                jumpPads.put(loc, new JumpPadData(direction, velocity, yVelocity));
+                jumpPads.put(loc, new JumpPadData(axis, velocity, yVelocity));
                 if (isDisabled) {
                     disabledJumpPads.add(loc);
                 }
@@ -96,7 +96,7 @@ public class JumpPadManager {
             if (loc.getWorld() == null) continue;
             JumpPadData data = entry.getValue();
             String key = loc.getWorld().getName() + "," + loc.getBlockX() + "," + loc.getBlockY() + "," + loc.getBlockZ();
-            jumpPadConfig.set("jumpPads." + key + ".direction", data.direction);
+            jumpPadConfig.set("jumpPads." + key + ".axis", data.axis);
             jumpPadConfig.set("jumpPads." + key + ".velocity", data.velocity);
             jumpPadConfig.set("jumpPads." + key + ".yVelocity", data.yVelocity);
             jumpPadConfig.set("jumpPads." + key + ".disabled", disabledJumpPads.contains(loc));
@@ -110,12 +110,12 @@ public class JumpPadManager {
         }
     }
 
-    public void addJumpPad(Location loc, String direction, double velocity, double yVelocity) {
+    public void addJumpPad(Location loc, String axis, double velocity, double yVelocity) {
         if (loc.getWorld() == null) {
             plugin.getLogger().warning("Tried to add a Jump Pad in a null world!");
             return;
         }
-        jumpPads.put(loc, new JumpPadData(direction, velocity, yVelocity));
+        jumpPads.put(loc, new JumpPadData(axis, velocity, yVelocity));
         disabledJumpPads.remove(loc);
         saveJumpPads();
     }
@@ -147,17 +147,16 @@ public class JumpPadManager {
         return false;
     }
 
-    public Vector getJumpPadVelocity(Location loc) {
+    public Vector getJumpPadVelocity(Location loc, Player player) {
         if (disabledJumpPads.contains(loc)) return null;
         JumpPadData data = jumpPads.get(loc);
         if (data == null) return null;
         Vector velocity = new Vector(0, 0, 0);
-        switch (data.direction.toLowerCase()) {
-            case "+x": velocity.setX(data.velocity); break;
-            case "-x": velocity.setX(-data.velocity); break;
-            case "+z": velocity.setZ(data.velocity); break;
-            case "-z": velocity.setZ(-data.velocity); break;
-            default: velocity.setX(data.velocity); break;
+        Vector facing = player.getLocation().getDirection();
+        if (data.axis.equals("x")) {
+            velocity.setX(facing.getX() >= 0 ? data.velocity : -data.velocity);
+        } else if (data.axis.equals("z")) {
+            velocity.setZ(facing.getZ() >= 0 ? data.velocity : -data.velocity);
         }
         velocity.setY(data.yVelocity);
         return velocity;

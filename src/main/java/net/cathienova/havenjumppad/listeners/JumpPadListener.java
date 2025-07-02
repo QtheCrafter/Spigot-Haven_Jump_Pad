@@ -24,7 +24,7 @@ public class JumpPadListener implements Listener {
             return;
         }
 
-        Vector velocity = jumpPadManager.getJumpPadVelocity(loc);
+        Vector velocity = jumpPadManager.getJumpPadVelocity(loc, player);
         if (velocity != null) {
             if (!player.hasPermission("jumppad.use")) {
                 player.sendMessage(jumpPadManager.getLangMessage("no_permission"));

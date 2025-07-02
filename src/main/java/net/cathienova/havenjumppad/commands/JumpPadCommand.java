@@ -92,8 +92,8 @@ public class JumpPadCommand implements CommandExecutor, TabCompleter {
         if (args.length >= 3 && args[0].equalsIgnoreCase("add")) {
             try {
                 String direction = args[1].toLowerCase();
-                if (!direction.equals("+x") && !direction.equals("-x") && !direction.equals("+z") && !direction.equals("-z")) {
-                    player.sendMessage("§cInvalid direction! Use +x, -x, +z, or -z.");
+                if (!direction.equals("x") && !direction.equals("z")) {
+                    player.sendMessage("§cInvalid direction! Use x or z.");
                     return true;
                 }
                 double velocity = Double.parseDouble(args[2]);
